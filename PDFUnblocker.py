@@ -16,8 +16,10 @@ def SingleUnlock(filename: str) -> None:
             pdf.save(filename)
     except pikepdf.PasswordError:
         print(f"The file {filename} appears to be unable to be de-encrypted.")
-    except Exception as e:
-        print(f"An unexpected error occurred with {filename}: {str(e)}")
+    except pikepdf.PasswordError:
+        print(f"The file {filename} appears to be unable to be de-encrypted.")
+    except pikepdf.PdfError as e:
+        print(f"An unexpected error occurred with {filename}: {e!s}")
 
 
 def BatchUnlock(PDFList: list[str], NumberOfFiles: int) -> None:
