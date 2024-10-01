@@ -23,7 +23,7 @@ To install and set up PDFUnlocker, simply download the script and run it.
 
 ## Prerequisites
 
-- Python 3.x or higher
+- Python 3.6 or higher
 - The Pikepdf library, which can be acquired via the command `pip install pikepdf`
   - For a more comprehensive understanding of Pikepdf, see [official documentation](https://pikepdf.readthedocs.io/en/latest/installation.html)
 
