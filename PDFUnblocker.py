@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 import time
 import sys
 import concurrent.futures
@@ -10,12 +9,18 @@ from tqdm import tqdm
 
 # DEFINE FUNCTIONS HERE
 
-def SingleUnlock(filename):
-    with pikepdf.open(filename,
-                      allow_overwriting_input=True) as pdf:
-        pdf.save(filename)
+def SingleUnlock(filename: str) -> None:
+    try:
+        with pikepdf.open(filename,
+                        allow_overwriting_input=True) as pdf:
+            pdf.save(filename)
+    except pikepdf.PasswordError:
+        print(f"The file {filename} appears to be unable to be de-encrypted.")
+    except Exception as e:
+        print(f"An unexpected error occurred with {filename}: {str(e)}")
 
-def BatchUnlock(PDFList, NumberOfFiles):
+
+def BatchUnlock(PDFList: list[str], NumberOfFiles: int) -> None:
     with concurrent.futures.ThreadPoolExecutor() as executor:
         list(tqdm(executor.map(SingleUnlock, PDFList, chunksize=3), total=NumberOfFiles))
 
@@ -30,6 +35,10 @@ if __name__ == "__main__":
         PDFDirectory = askdirectory()
     else:
         PDFDirectory = ClickedOnFolder
+    
+    if not os.path.isdir(PDFDirectory):
+        print(f"I regret to inform you that '{PDFDirectory}' is not a valid directory. Do try again, won't you?")
+        sys.exit(1)
 
     PDFDirectory = os.path.normpath(PDFDirectory)
     
@@ -54,10 +63,12 @@ if __name__ == "__main__":
         BatchUnlock(PDFList, NumberOfFiles)
 
         end = time.time()
+        duration = end - start
 
         print(f"""
-            Done! Unlocked {NumberOfFiles} PDF files in {round(end-start,2)} seconds.\n
-            Processed at a rate of {round(round(end-start, 2)/NumberOfFiles, 3)} seconds per file {round(NumberOfFiles/round(end-start, 2), 3)} or files per second
+            We've successfully unlocked {NumberOfFiles} PDF files in {duration:.2f} seconds.
+            That's a rate of {duration/NumberOfFiles:.3f} seconds per file, or if you prefer,
+            {NumberOfFiles/duration:.3f} files per second.
             """)
 
     time.sleep(2)
